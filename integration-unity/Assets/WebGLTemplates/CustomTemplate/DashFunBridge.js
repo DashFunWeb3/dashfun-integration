@@ -28,9 +28,11 @@
         init: (unityInstance) => {
             _unityInstance = unityInstance;
             window.addEventListener("message", handleMessage);
-            window.addEventListener("unload", m => {
-                _unityInstance.SendMessage("DashFunBridge", "OnWindowUnload", "unload");
-            });
+            const unityOnBeforeUnload = () => {
+                console.log("Browser is closing or refreshing");
+                unityInstance.SendMessage('DashFunBridge', 'OnWindowUnload', "unload");
+            }
+            window.onbeforeunload = unityOnBeforeUnload;
         },
         setLoading: (progress) => {
             p.postMessage({

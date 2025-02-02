@@ -67,8 +67,8 @@
             progressBarFull.style.width = 100 * progress + "%";
         }).then(unityInstance => {
             loadingBar.style.display = "none";
-            dashFunInst?.setLoading(100)
             dashFunInst?.init(unityInstance);
+            dashFunInst?.setLoading(100)
         });
     };
     document.body.appendChild(script);

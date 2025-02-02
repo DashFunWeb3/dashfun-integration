@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Text;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
 using static DashFun.Constants;
@@ -132,7 +133,7 @@ namespace DashFun
             }
         }
 
-        public DashFunUser userInEditor = new DashFunUser
+        [Header("编辑器模式下返回的测试用户数据")] public DashFunUser userInEditor = new DashFunUser
         {
             id = "dashfun",
             channelId = "dashfun",
@@ -140,7 +141,7 @@ namespace DashFun
             userName = "dashfun",
         };
 
-        [TextArea] public string saveDataInEditor;
+        [Header("编辑器模式下返回的存盘数据")] [TextArea] public string saveDataInEditor;
 
         private void Awake()
         {
@@ -154,6 +155,10 @@ namespace DashFun
             DontDestroyOnLoad(gameObject);
         }
 
+        /// <summary>
+        /// 向DashFun请求用户信息
+        /// </summary>
+        /// <param name="callback"></param>
         //send message to dashfun
         public void GetUserProfile(Action<DashFunUser> callback)
         {
@@ -166,6 +171,11 @@ namespace DashFun
             DashFunBridge_PostMessage(Method.GetUserProfile);
         }
 
+        /// <summary>
+        /// 向DashFun请求创建支付订单
+        /// </summary>
+        /// <param name="paymentRequest"></param>
+        /// <param name="callback"></param>
         public void RequestPayment(PaymentRequest paymentRequest, Action<PaymentRequestResult> callback)
         {
 #if UNITY_EDITOR
@@ -182,10 +192,16 @@ namespace DashFun
             DashFunBridge_PostMessage_RequestPayment(json);
         }
 
+        /// <summary>
+        /// 向DashFun请求开启支付界面
+        /// </summary>
+        /// <param name="invoiceLink">支付链接，从RequestPayment中获取</param>
+        /// <param name="paymentId">支付Id，从RequestPayment中获取</param>
+        /// <param name="callback"></param>
         public void OpenInvoice(string invoiceLink, string paymentId, Action<OpenInvoiceRequestResult> callback)
         {
 #if UNITY_EDITOR
-            var status = new string[] { "paid", "canceled", "failed" };
+            var status = new[] { "paid", "canceled", "failed" };
 
             //random result in editor
             var idx = Random.Range(0, status.Length);
@@ -207,11 +223,22 @@ namespace DashFun
             DashFunBridge_PostMessage_OpenInvoice(json);
         }
 
+        /// <summary>
+        /// 从DashFun获取指定key的数据，空串表示没有找到数据<br/>
+        /// <b>注：</b>编辑器模式下会先读取saveDataInEditor，如果没有值，则从PlayerPrefs中读取
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="callback"></param>
         public void GetData(string key, Action<string> callback)
         {
 #if UNITY_EDITOR
-            var bs = Convert.FromBase64String(saveDataInEditor);
-            callback?.Invoke(Encoding.UTF8.GetString(bs));
+            //编辑器模式下会先读取saveDataInEditor，如果没有值，则从PlayerPrefs中读取
+            var bs = saveDataInEditor;
+            if (bs == "")
+            {
+                bs = PlayerPrefs.GetString(key, "");
+            }
+            callback?.Invoke(bs);
             return;
 #endif
             _getDataCallback = callback;
@@ -223,9 +250,20 @@ namespace DashFun
             DashFunBridge_PostMessage_GetData(json);
         }
 
+        /// <summary>
+        /// 向DashFun保存数据<br/>
+        /// 在WebGL模式下，由于浏览器可能不会触发OnApplicationQuit, 所以尽量在用户数据发生变化时实时保存用户数据，以免丢失<br/>
+        /// <b>注：</b>编辑器模式下会保存到本地的PlayerPrefs中
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="data"></param>
+        /// <param name="callback"></param>
         public void SetData(string key, string data, Action<string> callback)
         {
 #if UNITY_EDITOR
+            PlayerPrefs.SetString(key, data);
+            Debug.Log("game data saved: " + key + "--> " + data);
+            callback?.Invoke(key);
             return;
 #endif
             _setDataCallback = callback;
@@ -238,6 +276,12 @@ namespace DashFun
             DashFunBridge_PostMessage_SetData(json);
         }
 
+        /// <summary>
+        /// 注册程序卸载事件<br/>
+        /// DashFun会在页面关闭或刷新时调用这个方法，可将数据保存方法放到回调中<br/>
+        /// 但请注意，浏览器在关闭或刷新页面时可能不会等待OnUnload执行完毕，所以不要把保存数据的方法只放在这个OnUnload回调中
+        /// </summary>
+        /// <param name="onUnload"></param>
         public void OnUnload(Action onUnload)
         {
             _onUnloadCallback = onUnload;
@@ -278,6 +322,11 @@ namespace DashFun
         }
 
         private void OnWindowUnload(string n)
+        {
+            _onUnloadCallback?.Invoke();
+        }
+
+        private void OnApplicationQuit()
         {
             _onUnloadCallback?.Invoke();
         }
