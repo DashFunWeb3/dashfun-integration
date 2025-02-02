@@ -43,7 +43,7 @@
 
 ## step 6: 支付接入
 - 支付分为两步
-    1. 向DashFun获取paymentId和invokceLink
+    1. 向DashFun获取paymentId和invoiceLink
     ```typescript
     DashFunBridge.getInstance().requestPayment({
         title: "测试道具", //付费项目名称，将显示在telegram的支付界面上
