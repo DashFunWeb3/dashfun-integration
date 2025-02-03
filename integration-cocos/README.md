@@ -3,6 +3,12 @@
 # 简介
 详细介绍如何在cocos环境下接入DashFun Sdk
 
+# 接入要求
+1. 游戏闪屏必须带有dashfun的logo
+2. 必须使用dashfun的玩家数据保存和读取功能
+3. 付费ui显示的货币必须改为星星，50个星星=1美金
+
+# 接入步骤
 ## Step 1: Clone 或者 下载 当前SDK
 ## Step 2: Setup the DashFun Bridge
 1. 拷贝assets/DashFun 到cocos项目的assets目录
