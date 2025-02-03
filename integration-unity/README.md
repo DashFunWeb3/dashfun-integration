@@ -61,7 +61,7 @@
     var saveData = JsonUtility.ToJson(gamedata); //要保存的数据，必须将数据对象转化为json字符串
     DashFunBridge.Inst.setData(key, saveData, state=>{})
 ```
-- 读取数据时调用 `DashFunBridge.Inst().getData()` 进行读取
+- 读取数据时调用 `DashFunBridge.Inst.getData()` 进行读取
 - 例：
 ``` C#
     var key = "testgame"; //要读取数据的key
