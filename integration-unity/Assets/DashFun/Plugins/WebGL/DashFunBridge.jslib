@@ -42,7 +42,7 @@ mergeInto(LibraryManager.library, {
         const jsonData = JSON.parse(UTF8ToString(data));
         console.log("DashFunBridge_PostMessage_GetData", jsonData);
         parent.postMessage(
-            { dashfun: { method: "setData", payload: jsonData } },
+            { dashfun: { method: "getData", payload: jsonData } },
             "*"
         );
     },    

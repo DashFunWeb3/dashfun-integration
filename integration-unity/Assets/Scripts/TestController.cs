@@ -10,6 +10,10 @@ public class TestGameData
     public string userId;
     public int level = Random.Range(1, 10);
     public int progress = Random.Range(10, 20);
+    public override string ToString()
+    {
+        return $"UserId:{userId} Level:{level} Progress:{progress}";
+    }
 }
 
 public class TestController : MonoBehaviour
@@ -59,7 +63,7 @@ public class TestController : MonoBehaviour
             {
                 var d = JsonUtility.FromJson<TestGameData>(result);
                 Debug.Log("Get Data: " + key + "-->");
-                Debug.Log(d);
+                Debug.Log(d.ToString());
             }
         });
     }
