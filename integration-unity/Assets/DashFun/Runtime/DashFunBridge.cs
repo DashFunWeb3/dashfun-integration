@@ -1,7 +1,6 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Text;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Serialization;
 using static DashFun.Constants;
@@ -57,6 +56,18 @@ namespace DashFun
     }
 
     [Serializable]
+    public class AdRequest
+    {
+        public string title;
+        public string desc;
+    }
+
+    public class AdRequestResult
+    {
+        public string data;
+    }
+
+    [Serializable]
     public class OpenInvoiceRequest
     {
         public string invoiceLink; //tg invokce 链接
@@ -92,6 +103,9 @@ namespace DashFun
         private static extern void DashFunBridge_PostMessage_RequestPayment(string data);
 
         [DllImport("__Internal")]
+        private static extern void DashFunBridge_PostMessage_RequestAd(string data);
+
+        [DllImport("__Internal")]
         private static extern void DashFunBridge_PostMessage_OpenInvoice(string data);
 
         [DllImport("__Internal")]
@@ -107,6 +121,7 @@ namespace DashFun
         private Action<DashFunUser> _getUserProfileCallback;
         private Action<PaymentRequestResult> _paymentRequestResultCallback;
         private Action<OpenInvoiceRequestResult> _openInvoiceRequestResultCallback;
+        private Action<AdRequestResult> _adRequestResultCallback;
         private Action<string> _getDataCallback;
         private Action<string> _setDataCallback;
 
@@ -192,6 +207,27 @@ namespace DashFun
             DashFunBridge_PostMessage_RequestPayment(json);
         }
 
+
+        /// <summary>
+        /// 向DashFun请求观看广告
+        /// </summary>
+        /// <param name="adRequest"></param>
+        /// <param name="callback"></param>
+        public void RequestAd(AdRequest adRequest, Action<AdRequestResult> callback)
+        {
+#if UNITY_EDITOR
+            var result = new AdRequestResult
+            {
+                data = "editor_test"
+            };
+            callback?.Invoke(result);
+            return;
+#endif
+            _adRequestResultCallback = callback;
+            var json = JsonUtility.ToJson(adRequest);
+            DashFunBridge_PostMessage_RequestAd(json);
+        }
+
         /// <summary>
         /// 向DashFun请求开启支付界面
         /// </summary>
@@ -238,6 +274,7 @@ namespace DashFun
             {
                 bs = PlayerPrefs.GetString(key, "");
             }
+
             callback?.Invoke(bs);
             return;
 #endif
@@ -299,6 +336,12 @@ namespace DashFun
         {
             var converted = JsonUtility.FromJson<PaymentRequestResult>(data);
             _paymentRequestResultCallback?.Invoke(converted);
+        }
+
+        private void RequestAdResult(string data)
+        {
+            var converted = JsonUtility.FromJson<AdRequestResult>(data);
+            _adRequestResultCallback?.Invoke(converted);
         }
 
         private void OpenInvoiceResult(string data)

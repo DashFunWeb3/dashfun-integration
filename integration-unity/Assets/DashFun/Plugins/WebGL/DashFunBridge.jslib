@@ -16,6 +16,16 @@ mergeInto(LibraryManager.library, {
             "*"
         );
     },
+    
+    DashFunBridge_PostMessage_RequestAd: function (data) {
+        const parent = window.parent.window;
+        const jsonData = JSON.parse(UTF8ToString(data));
+        console.log("DashFunBridge_PostMessage_RequestAd", jsonData);
+        parent.postMessage(
+            { dashfun: { method: "requestAd", payload: jsonData } },
+            "*"
+        );
+    },
 
     DashFunBridge_PostMessage_OpenInvoice: function (data) {
         const parent = window.parent.window;

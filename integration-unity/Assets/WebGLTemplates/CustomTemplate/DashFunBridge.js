@@ -15,6 +15,8 @@
             _unityInstance.SendMessage("DashFunBridge", "GetUserProfileResult", JSON.stringify(dashfun.result.data));
         } else if (method == "requestPaymentResult") {
             _unityInstance.SendMessage("DashFunBridge", "RequestPaymentResult", JSON.stringify(dashfun.result.data));
+        } else if (method == "requestAdResult") {
+                _unityInstance.SendMessage("DashFunBridge", "RequestAdResult", JSON.stringify(dashfun.result.data));
         } else if (method == "openInvoiceResult") {
             _unityInstance.SendMessage("DashFunBridge", "OpenInvoiceResult", JSON.stringify(dashfun.result.data));
         } else if (method == "setDataResult") {
