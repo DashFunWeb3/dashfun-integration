@@ -64,7 +64,7 @@ namespace DashFun
 
     public class AdRequestResult
     {
-        public string data;
+        public string data; //广告结果，success为成功，其他则为失败
     }
 
     [Serializable]

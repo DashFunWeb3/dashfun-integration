@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="TemplateData/style.css">
 </head>
 <body class="{{{ SPLASH_SCREEN_STYLE.toLowerCase() }}}" style="margin:0; width:100%; height:100%;">
-    <div id="unity-container" class="unity-mobile">
+<div id="unity-container" class="unity-mobile">
     <canvas id="unity-canvas" style="width: 100%; height: 100%"></canvas>
     <div id="unity-loading-bar">
         <div id="unity-logo"></div>
@@ -24,7 +24,7 @@
     var canvas = document.querySelector("#unity-canvas");
     var loadingBar = document.querySelector("#unity-loading-bar");
     var progressBarFull = document.querySelector("#unity-progress-bar-full");
-    
+
     const buildUrl = "Build";
     const loaderUrl = buildUrl + "/{{{ LOADER_FILENAME }}}";
     const config = {
@@ -52,13 +52,16 @@
     script.src = loaderUrl;
     script.onload = () => {
         const dashFunInst = dashfunBridge();
-        createUnityInstance(canvas, config, (progress) => {
-            dashFunInst?.setLoading(progress * 100);
-            progressBarFull.style.width = 100 * progress + "%";
-        }).then(unityInstance => {
-            loadingBar.style.display = "none";
-            dashFunInst?.init(unityInstance);
-            dashFunInst?.setLoading(100)
+        var gameInstance = UnityLoader.instantiate("unity-container", "{{{ BUILD_JSON }}}", {
+            onProgress: (gameInstance, progress) => {
+                dashFunInst?.setLoading(progress * 100);
+                progressBarFull.style.width = 100 * progress + "%";
+                if (progress == 1) {
+                    loadingBar.style.display = "none";
+                    dashFunInst?.init(gameInstance);
+                    dashFunInst?.setLoading(100);
+                }
+            }
         });
     };
     document.body.appendChild(script);
