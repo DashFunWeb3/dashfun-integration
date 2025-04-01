@@ -16,9 +16,9 @@ public class WebGLTemplateFixer : IPostprocessBuildWithReport
         if (report.summary.platform != BuildTarget.WebGL)
             return;
 
-        // 只处理 Unity 版本 < 2020
+        // 只处理 Unity 版本 < 2019
         var unityVersion = Application.unityVersion;
-        if (IsVersionOrNewer(unityVersion, "2020.1.0"))
+        if (IsVersionOrNewer(unityVersion, "2019.1.0"))
         {
             Debug.Log($"✅ Unity {unityVersion} 版本已原生支持 {{{{}}}} 模板，无需替换");
             return;
